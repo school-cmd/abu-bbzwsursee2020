@@ -1,0 +1,17 @@
+{
+  "name": "abuserver-main",
+  "version": "1.0.0",
+  "description": "project for allgemein bildung at BBZW Sursee",
+  "main": "index.js",
+  "directories": {
+    "example": "example"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.17.1"
+  }
+}

@@ -1,0 +1,953 @@
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.3.2/css/bulma.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/1.19.1/TweenLite.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/1.19.1/plugins/CSSPlugin.min.js"></script>
+<style>
+
+html {
+    background-color: #e1e1db;
+}
+
+body {
+    font-size: 16px;
+    font-family: "Open Sans", sans-serif;
+    height: 100%;
+    width: 100%;
+    padding-bottom: 5%;
+}
+
+a {
+    outline: none;
+    color: #2b79a2;
+}
+
+#menu {
+    position: relative;
+    transition: right 1.5s ease 0s;
+    right: 0;
+}
+
+#menu-control {
+    transition: all 1s ease 0s;
+    position: absolute;
+    top: 15px;
+    right: 10%;
+    left: 80%;
+    border: none;
+    border-radius: 7px;
+}
+
+code {
+    background-color: #f1f1f1;
+    color: #6e6b5e;
+    border-radius: 3px;
+}
+
+.menu {
+    border-radius: 8px;
+    height: 788px;
+}
+
+.menu,
+.menu-list a:hover,
+.menu-list a.is-active,
+.menu-control,
+.contact {
+    background-color: #3b2e2a;
+}
+
+.menu-list a,
+.contact a i,
+.menu-control {
+    color: #c8c9db;
+}
+
+#menu a:hover,
+.menu-list a.is-active,
+.contact a i:hover,
+.menu-control:hover {
+    color: #e69f67;
+}
+
+.contact {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    text-align: center;
+    padding-top: 15px;
+    padding-bottom: 15px;
+}
+
+.contact a:first-of-type {
+    padding-right: 15px;
+}
+
+.contact a:last-of-type {
+    padding-left: 15px;
+}
+
+.contact p{
+    color: #c8c9db;
+}
+
+.contact a:hover{
+    color: #e69f67;
+}
+
+aside {
+    position: relative;
+}
+
+@media screen and (max-width: 768px) {
+    body {
+        padding-bottom: 15%;
+    }
+    .menu {
+        overflow: scroll;
+        height: 120px;
+        border-bottom: 1px solid #999;
+    }
+    .column {
+        padding-right: 0;
+    }
+    .content {
+        padding: 25px 0 0 25px;
+    }
+}
+
+@media screen and (min-width: 769px) and (max-width: 1180px) {
+    .content {
+        padding: 15% 0 0 15%;
+    }
+}
+
+@media screen and (min-width: 1181px) {
+    .content {
+        padding: 10% 20% 0 20%;
+    }
+}
+</style>
+<script>
+
+ready(() => {
+    display_text("introduction");
+    let menu_items = document.getElementById("menu");
+    const menu_control = document.getElementById("menu-control");
+
+    const menu_styles = window.getComputedStyle(menu_items);
+
+    menu_control.addEventListener("click", () => {
+        let current_right = menu_styles.getPropertyValue("right").slice(0, -2);
+        if (current_right === "0") {
+            menu_items.style.right = "800px";
+            menu_control.style.right = "80%";
+            menu_control.style.left = "10%";
+        } else {
+            menu_items.style.right = "0";
+            menu_control.style.right = "10%";
+            menu_control.style.left = "80%";
+        }
+    });
+
+    menu_items.addEventListener("click", (event) => {
+        change_selected_menu(event);
+    });
+
+});
+
+function change_selected_menu(event) {
+    let selected_item = event.target;
+    if (selected_item.classList[0] === undefined) {
+        let previous_item = document.getElementsByClassName("is-active")[0];
+        previous_item.classList.remove("is-active");
+        selected_item.className = "is-active";
+        display_text(selected_item.id);
+    }
+}
+
+function display_text(id) {
+    let result = " ";
+    if (id !== '') {
+        result = chapters[id];
+    }
+    document.getElementById("main-content").innerHTML = result;
+}
+
+function ready(fn) {
+    if (document.readyState != 'loading') {
+        fn();
+    } else {
+        document.addEventListener('DOMContentLoaded', fn);
+    }
+}
+
+//Copied the DOM from the rust book website directly
+//This is just lorem-ipsum like data to showcase the project, not an actual implementation of the rust book page.
+const chapters = {
+    "introduction": `
+
+        `,
+    "defineenum": `       <a class="header" href="#defining-an-enum" name="defining-an-enum"><h2>Defining an Enum</h2></a>
+<p>Let’s look at a situation we might want to express in code and see why enums
+are useful and more appropriate than structs in this case. Say we need to work
+with IP addresses. Currently, two major standards are used for IP addresses:
+version four and version six. These are the only possibilities for an IP
+address that our program will come across: we can <em>enumerate</em> all possible
+values, which is where enumeration gets its name.</p>
+<p>Any IP address can be either a version four or a version six address but not
+both at the same time. That property of IP addresses makes the enum data
+structure appropriate for this case, because enum values can only be one of the
+variants. Both version four and version six addresses are still fundamentally
+IP addresses, so they should be treated as the same type when the code is
+handling situations that apply to any kind of IP address.</p>
+<p>We can express this concept in code by defining an <code class="hljs">IpAddrKind</code> enumeration and
+listing the possible kinds an IP address can be, <code class="hljs">V4</code> and <code class="hljs">V6</code>. These are known
+as the <em>variants</em> of the enum:</p>
+<pre><code class="language-rust hljs"><span class="hljs-class"><span class="hljs-keyword">enum</span> <span class="hljs-title">IpAddrKind</span></span> {
+    V4,
+    V6,
+}
+</code></pre>
+<p><code class="hljs">IpAddrKind</code> is now a custom data type that we can use elsewhere in our code.</p>
+<a class="header" href="#enum-values" name="enum-values"><h3>Enum Values</h3></a>
+<p>We can create instances of each of the two variants of <code class="hljs">IpAddrKind</code> like this:</p>
+<pre><div class="buttons"><i class="fa fa-expand"></i></div><code class="language-rust hljs"><span class="hidden"> <span class="hljs-class"><span class="hljs-keyword">enum</span> <span class="hljs-title">IpAddrKind</span></span> {
+</span><span class="hidden">     V4,
+</span><span class="hidden">     V6,
+</span><span class="hidden"> }
+</span><span class="hidden">
+</span><span class="hljs-keyword">let</span> four = IpAddrKind::V4;
+<span class="hljs-keyword">let</span> six = IpAddrKind::V6;
+</code></pre>
+<p>Note that the variants of the enum are namespaced under its identifier, and we
+use a double colon to separate the two. The reason this is useful is that now
+both values <code class="hljs">IpAddrKind::V4</code> and <code class="hljs">IpAddrKind::V6</code> are of the same type:
+<code class="hljs">IpAddrKind</code>. We can then, for instance, define a function that takes any
+<code class="hljs">IpAddrKind</code>:</p>
+<pre><div class="buttons"><i class="fa fa-expand"></i></div><code class="language-rust hljs"><span class="hidden"> <span class="hljs-class"><span class="hljs-keyword">enum</span> <span class="hljs-title">IpAddrKind</span></span> {
+</span><span class="hidden">     V4,
+</span><span class="hidden">     V6,
+</span><span class="hidden"> }
+</span><span class="hidden">
+</span><span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">route</span></span>(ip_type: IpAddrKind) { }
+</code></pre>
+<p>And we can call this function with either variant:</p>
+<pre><div class="buttons"><i class="fa fa-expand"></i></div><code class="language-rust hljs"><span class="hidden"> <span class="hljs-class"><span class="hljs-keyword">enum</span> <span class="hljs-title">IpAddrKind</span></span> {
+</span><span class="hidden">     V4,
+</span><span class="hidden">     V6,
+</span><span class="hidden"> }
+</span><span class="hidden">
+</span><span class="hidden"> <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">route</span></span>(ip_type: IpAddrKind) { }
+</span><span class="hidden">
+</span>route(IpAddrKind::V4);
+route(IpAddrKind::V6);
+</code></pre>
+<p>Using enums has even more advantages. Thinking more about our IP address type,
+at the moment we don’t have a way to store the actual IP address <em>data</em>; we
+only know what <em>kind</em> it is. Given that you just learned about structs in
+Chapter 5, you might tackle this problem as shown in Listing 6-1:</p>
+<figure>
+<pre><code class="language-rust hljs"><span class="hljs-class"><span class="hljs-keyword">enum</span> <span class="hljs-title">IpAddrKind</span></span> {
+    V4,
+    V6,
+}
+
+<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">IpAddr</span></span> {
+    kind: IpAddrKind,
+    address: <span class="hljs-built_in">String</span>,
+}
+
+<span class="hljs-keyword">let</span> home = IpAddr {
+    kind: IpAddrKind::V4,
+    address: <span class="hljs-built_in">String</span>::from(<span class="hljs-string">"127.0.0.1"</span>),
+};
+
+<span class="hljs-keyword">let</span> loopback = IpAddr {
+    kind: IpAddrKind::V6,
+    address: <span class="hljs-built_in">String</span>::from(<span class="hljs-string">"::1"</span>),
+};
+</code></pre>
+<figcaption>
+<p>Listing 6-1: Storing the data and <code class="hljs">IpAddrKind</code> variant of an IP address using a
+<code class="hljs">struct</code></p>
+</figcaption>
+</figure>
+<p>Here, we’ve defined a struct <code class="hljs">IpAddr</code> that has two fields: a <code class="hljs">kind</code> field that
+is of type <code class="hljs">IpAddrKind</code> (the enum we defined previously) and an <code class="hljs">address</code> field
+of type <code class="hljs">String</code>. We have two instances of this struct. The first, <code class="hljs">home</code>, has
+the value <code class="hljs">IpAddrKind::V4</code> as its <code class="hljs">kind</code> with associated address data of
+<code class="hljs">127.0.0.1</code>. The second instance, <code class="hljs">loopback</code>, has the other variant of
+<code class="hljs">IpAddrKind</code> as its <code class="hljs">kind</code> value, <code class="hljs">V6</code>, and has address <code class="hljs">::1</code> associated with
+it. We’ve used a struct to bundle the <code class="hljs">kind</code> and <code class="hljs">address</code> values together, so
+now the variant is associated with the value.</p>
+<p>We can represent the same concept in a more concise way using just an enum
+rather than an enum as part of a struct by putting data directly into each enum
+variant. This new definition of the <code class="hljs">IpAddr</code> enum says that both <code class="hljs">V4</code> and <code class="hljs">V6</code>
+variants will have associated <code class="hljs">String</code> values:</p>
+<pre><code class="language-rust hljs"><span class="hljs-class"><span class="hljs-keyword">enum</span> <span class="hljs-title">IpAddr</span></span> {
+    V4(<span class="hljs-built_in">String</span>),
+    V6(<span class="hljs-built_in">String</span>),
+}
+
+<span class="hljs-keyword">let</span> home = IpAddr::V4(<span class="hljs-built_in">String</span>::from(<span class="hljs-string">"127.0.0.1"</span>));
+
+<span class="hljs-keyword">let</span> loopback = IpAddr::V6(<span class="hljs-built_in">String</span>::from(<span class="hljs-string">"::1"</span>));
+</code></pre>
+<p>We attach data to each variant of the enum directly, so there is no need for an
+extra struct.</p>
+<p>There’s another advantage to using an enum rather than a struct: each variant
+can have different types and amounts of associated data. Version four type IP
+addresses will always have four numeric components that will have values
+between 0 and 255. If we wanted to store <code class="hljs">V4</code> addresses as four <code class="hljs">u8</code> values but
+still express <code class="hljs">V6</code> addresses as one <code class="hljs">String</code> value, we wouldn’t be able to with
+a struct. Enums handle this case with ease:</p>
+<pre><code class="language-rust hljs"><span class="hljs-class"><span class="hljs-keyword">enum</span> <span class="hljs-title">IpAddr</span></span> {
+    V4(<span class="hljs-keyword">u8</span>, <span class="hljs-keyword">u8</span>, <span class="hljs-keyword">u8</span>, <span class="hljs-keyword">u8</span>),
+    V6(<span class="hljs-built_in">String</span>),
+}
+
+<span class="hljs-keyword">let</span> home = IpAddr::V4(<span class="hljs-number">127</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">1</span>);
+
+<span class="hljs-keyword">let</span> loopback = IpAddr::V6(<span class="hljs-built_in">String</span>::from(<span class="hljs-string">"::1"</span>));
+</code></pre>
+<p>We’ve shown several different possibilities that we could define in our code
+for storing IP addresses of the two different varieties using an enum. However,
+as it turns out, wanting to store IP addresses and encode which kind they are
+is so common that <a href="../std/net/enum.IpAddr.html">the standard library has a definition we can
+use!</a><!-- ignore --> Let’s look at how the standard library defines
+<code class="hljs">IpAddr</code>: it has the exact enum and variants that we’ve defined and used, but
+it embeds the address data inside the variants in the form of two different
+structs, which are defined differently for each variant:</p>
+<pre><code class="language-rust hljs"><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">Ipv4Addr</span></span> {
+    <span class="hljs-comment">// details elided</span>
+}
+
+<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">Ipv6Addr</span></span> {
+    <span class="hljs-comment">// details elided</span>
+}
+
+<span class="hljs-class"><span class="hljs-keyword">enum</span> <span class="hljs-title">IpAddr</span></span> {
+    V4(Ipv4Addr),
+    V6(Ipv6Addr),
+}
+</code></pre>
+<p>This code illustrates that you can put any kind of data inside an enum variant:
+strings, numeric types, or structs, for example. You can even include another
+enum! Also, standard library types are often not much more complicated than
+what you might come up with.</p>
+<p>Note that even though the standard library contains a definition for <code class="hljs">IpAddr</code>,
+we can still create and use our own definition without conflict because we
+haven’t brought the standard library’s definition into our scope. We’ll talk
+more about importing types in Chapter 7.</p>
+<p>Let’s look at another example of an enum in Listing 6-2: this one has a wide
+variety of types embedded in its variants:</p>
+<figure>
+<pre><code class="language-rust hljs"><span class="hljs-class"><span class="hljs-keyword">enum</span> <span class="hljs-title">Message</span></span> {
+    Quit,
+    Move { x: <span class="hljs-keyword">i32</span>, y: <span class="hljs-keyword">i32</span> },
+    Write(<span class="hljs-built_in">String</span>),
+    ChangeColor(<span class="hljs-keyword">i32</span>, <span class="hljs-keyword">i32</span>, <span class="hljs-keyword">i32</span>),
+}
+</code></pre>
+<figcaption>
+<p>Listing 6-2: A <code class="hljs">Message</code> enum whose variants each store different amounts and
+types of values</p>
+</figcaption>
+</figure>
+<p>This enum has four variants with different types:</p>
+<ul>
+<li><code class="hljs">Quit</code> has no data associated with it at all.</li>
+<li><code class="hljs">Move</code> includes an anonymous struct inside it.</li>
+<li><code class="hljs">Write</code> includes a single <code class="hljs">String</code>.</li>
+<li><code class="hljs">ChangeColor</code> includes three <code class="hljs">i32</code>s.</li>
+</ul>
+<p>Defining an enum with variants like the ones in Listing 6-2 is similar to
+defining different kinds of struct definitions except the enum doesn’t use the
+<code class="hljs">struct</code> keyword and all the variants are grouped together under the <code class="hljs">Message</code>
+type. The following structs could hold the same data that the preceding enum
+variants hold:</p>
+<pre><code class="language-rust hljs"><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">QuitMessage</span></span>; <span class="hljs-comment">// unit struct</span>
+<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">MoveMessage</span></span> {
+    x: <span class="hljs-keyword">i32</span>,
+    y: <span class="hljs-keyword">i32</span>,
+}
+<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">WriteMessage</span></span>(<span class="hljs-built_in">String</span>); <span class="hljs-comment">// tuple struct</span>
+<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">ChangeColorMessage</span></span>(<span class="hljs-keyword">i32</span>, <span class="hljs-keyword">i32</span>, <span class="hljs-keyword">i32</span>); <span class="hljs-comment">// tuple struct</span>
+</code></pre>
+<p>But if we used the different structs, which each have their own type, we
+wouldn’t be able to as easily define a function that could take any of these
+kinds of messages as we could with the <code class="hljs">Message</code> enum defined in Listing 6-2,
+which is a single type.</p>
+<p>There is one more similarity between enums and structs: just as we’re able to
+define methods on structs using <code class="hljs">impl</code>, we’re also able to define methods on
+enums. Here’s a method named <code class="hljs">call</code> that we could define on our <code class="hljs">Message</code> enum:</p>
+<pre><div class="buttons"><i class="fa fa-expand"></i></div><code class="language-rust hljs"><span class="hidden"> <span class="hljs-class"><span class="hljs-keyword">enum</span> <span class="hljs-title">Message</span></span> {
+</span><span class="hidden">     Quit,
+</span><span class="hidden">     Move { x: <span class="hljs-keyword">i32</span>, y: <span class="hljs-keyword">i32</span> },
+</span><span class="hidden">     Write(<span class="hljs-built_in">String</span>),
+</span><span class="hidden">     ChangeColor(<span class="hljs-keyword">i32</span>, <span class="hljs-keyword">i32</span>, <span class="hljs-keyword">i32</span>),
+</span><span class="hidden"> }
+</span><span class="hidden">
+</span><span class="hljs-keyword">impl</span> Message {
+    <span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">call</span></span>(&amp;<span class="hljs-keyword">self</span>) {
+        <span class="hljs-comment">// method body would be defined here</span>
+    }
+}
+
+<span class="hljs-keyword">let</span> m = Message::Write(<span class="hljs-built_in">String</span>::from(<span class="hljs-string">"hello"</span>));
+m.call();
+</code></pre>
+<p>The body of the method would use <code class="hljs">self</code> to get the value that we called the
+method on. In this example, we’ve created a variable <code class="hljs">m</code> that has the value
+<code class="hljs">Message::Write("hello")</code>, and that is what <code class="hljs">self</code> will be in the body of the
+<code class="hljs">call</code> method when <code class="hljs">m.call()</code> runs.</p>
+<p>Let’s look at another enum in the standard library that is very common and
+useful: <code class="hljs">Option</code>.</p>
+<a class="header" href="#the-option-enum-and-its-advantages-over-null-values" name="the-option-enum-and-its-advantages-over-null-values"><h3>The <code class="hljs">Option</code> Enum and Its Advantages Over Null Values</h3></a>
+<p>In the previous section, we looked at how the <code class="hljs">IpAddr</code> enum let us use Rust’s
+type system to encode more information than just the data into our program.
+This section explores a case study of <code class="hljs">Option</code>, which is another enum defined
+by the standard library. The <code class="hljs">Option</code> type is used in many places because it
+encodes the very common scenario in which a value could be something or it
+could be nothing. Expressing this concept in terms of the type system means the
+compiler can check that you’ve handled all the cases you should be handling,
+which can prevent bugs that are extremely common in other programming languages.</p>
+<p>Programming language design is often thought of in terms of which features you
+include, but the features you exclude are important too. Rust doesn’t have the
+null feature that many other languages have. <em>Null</em> is a value that means there
+is no value there. In languages with null, variables can always be in one of
+two states: null or not-null.</p>
+<p>In “Null References: The Billion Dollar Mistake,” Tony Hoare, the inventor of
+null, has this to say:</p>
+<blockquote>
+<p>I call it my billion-dollar mistake. At that time, I was designing the first
+comprehensive type system for references in an object-oriented language. My
+goal was to ensure that all use of references should be absolutely safe, with
+checking performed automatically by the compiler. But I couldn't resist the
+temptation to put in a null reference, simply because it was so easy to
+implement. This has led to innumerable errors, vulnerabilities, and system
+crashes, which have probably caused a billion dollars of pain and damage in
+the last forty years.</p>
+</blockquote>
+<p>The problem with null values is that if you try to actually use a value that’s
+null as if it is a not-null value, you’ll get an error of some kind. Because
+this null or not-null property is pervasive, it’s extremely easy to make this
+kind of error.</p>
+<p>However, the concept that null is trying to express is still a useful one: a
+null is a value that is currently invalid or absent for some reason.</p>
+<p>The problem isn’t with the actual concept but with the particular
+implementation. As such, Rust does not have nulls, but it does have an enum
+that can encode the concept of a value being present or absent. This enum is
+<code class="hljs">Option&lt;T&gt;</code>, and it is <a href="../std/option/enum.Option.html">defined by the standard library</a><!-- ignore -->
+as follows:</p>
+<pre><code class="language-rust hljs"><span class="hljs-class"><span class="hljs-keyword">enum</span> <span class="hljs-title">Option</span></span>&lt;T&gt; {
+    <span class="hljs-literal">Some</span>(T),
+    <span class="hljs-literal">None</span>,
+}
+</code></pre>
+<p>The <code class="hljs">Option&lt;T&gt;</code> enum is so useful that it’s even included in the prelude; you
+don’t need to import it explicitly.  In addition, so are its variants: you can
+use <code class="hljs">Some</code> and <code class="hljs">None</code> directly without prefixing them with <code class="hljs">Option::</code>.
+<code class="hljs">Option&lt;T&gt;</code> is still just a regular enum, and <code class="hljs">Some(T)</code> and <code class="hljs">None</code> are still
+variants of type <code class="hljs">Option&lt;T&gt;</code>.</p>
+<p>The <code class="hljs">&lt;T&gt;</code> syntax is a feature of Rust we haven’t talked about yet. It’s a
+generic type parameter, and we’ll cover generics in more detail in Chapter 10.
+For now, all you need to know is that <code class="hljs">&lt;T&gt;</code> means the <code class="hljs">Some</code> variant of the
+<code class="hljs">Option</code> enum can hold one piece of data of any type. Here are some examples of
+using <code class="hljs">Option</code> values to hold number types and string types:</p>
+<pre><code class="language-rust hljs"><span class="hljs-keyword">let</span> some_number = <span class="hljs-literal">Some</span>(<span class="hljs-number">5</span>);
+<span class="hljs-keyword">let</span> some_string = <span class="hljs-literal">Some</span>(<span class="hljs-string">"a string"</span>);
+
+<span class="hljs-keyword">let</span> absent_number: <span class="hljs-built_in">Option</span>&lt;<span class="hljs-keyword">i32</span>&gt; = <span class="hljs-literal">None</span>;
+</code></pre>
+<p>If we use <code class="hljs">None</code> rather than <code class="hljs">Some</code>, we need to tell Rust what type of
+<code class="hljs">Option&lt;T&gt;</code> we have, because the compiler can't infer the type that the <code class="hljs">Some</code>
+variant will hold by looking only at a <code class="hljs">None</code> value.</p>
+<p>When we have a <code class="hljs">Some</code> value, we know that a value is present, and the value is
+held within the <code class="hljs">Some</code>. When we have a <code class="hljs">None</code> value, in some sense, it means
+the same thing as null: we don’t have a valid value. So why is having
+<code class="hljs">Option&lt;T&gt;</code> any better than having null?</p>
+<p>In short, because <code class="hljs">Option&lt;T&gt;</code> and <code class="hljs">T</code> (where <code class="hljs">T</code> can be any type) are different
+types, the compiler won’t let us use an <code class="hljs">Option&lt;T&gt;</code> value as if it was
+definitely a valid value. For example, this code won’t compile because it’s
+trying to compare an <code class="hljs">Option&lt;i8&gt;</code> to an <code class="hljs">i8</code>:</p>
+<pre><code class="language-rust,ignore hljs"><span class="hljs-keyword">let</span> x: <span class="hljs-keyword">i8</span> = <span class="hljs-number">5</span>;
+<span class="hljs-keyword">let</span> y: <span class="hljs-built_in">Option</span>&lt;<span class="hljs-keyword">i8</span>&gt; = <span class="hljs-literal">Some</span>(<span class="hljs-number">5</span>);
+
+<span class="hljs-keyword">let</span> sum = x + y;
+</code></pre>
+<p>If we run this code, we get an error message like this:</p>
+<pre><code class="language-text hljs">error[E0277]: the trait bound \`i8: std::ops::Add&lt;std::option::Option&lt;i8&gt;&gt;\` is
+not satisfied
+ --&gt;
+  |
+7 | let sum = x + y;
+  |           ^^^^^
+  |
+</code></pre>
+<p>Intense! In effect, this error message means that Rust doesn’t understand how
+to add an <code class="hljs">Option&lt;i8&gt;</code> and an <code class="hljs">i8</code>, because they’re different types. When we
+have a value of a type like <code class="hljs">i8</code> in Rust, the compiler will ensure that we
+always have a valid value. We can proceed confidently without having to check
+for null before using that value. Only when we have an <code class="hljs">Option&lt;i8&gt;</code> (or
+whatever type of value we’re working with) do we have to worry about possibly
+not having a value, and the compiler will make sure we handle that case before
+using the value.</p>
+<p>In other words, you have to convert an <code class="hljs">Option&lt;T&gt;</code> to a <code class="hljs">T</code> before you can
+perform <code class="hljs">T</code> operations with it. Generally, this helps catch one of the most
+common issues with null: assuming that something isn’t null when it actually
+is.</p>
+<p>Not having to worry about missing an assumption of having a not-null value
+helps you to be more confident in your code. In order to have a value that can
+possibly be null, you must explicitly opt in by making the type of that value
+<code class="hljs">Option&lt;T&gt;</code>. Then, when you use that value, you are required to explicitly
+handle the case when the value is null. Everywhere that a value has a type that
+isn’t an <code class="hljs">Option&lt;T&gt;</code>, you <em>can</em> safely assume that the value isn’t null. This
+was a deliberate design decision for Rust to limit null’s pervasiveness and
+increase the safety of Rust code.</p>
+<p>So, how do you get the <code class="hljs">T</code> value out of a <code class="hljs">Some</code> variant when you have a value
+of type <code class="hljs">Option&lt;T&gt;</code> so you can use that value? The <code class="hljs">Option&lt;T&gt;</code> enum has a large
+number of methods that are useful in a variety of situations; you can check
+them out in <a href="../std/option/enum.Option.html">its documentation</a><!-- ignore -->. Becoming familiar with
+the methods on <code class="hljs">Option&lt;T&gt;</code> will be extremely useful in your journey with Rust.</p>
+<p>In general, in order to use an <code class="hljs">Option&lt;T&gt;</code> value, we want to have code that
+will handle each variant. We want some code that will run only when we have a
+<code class="hljs">Some(T)</code> value, and this code is allowed to use the inner <code class="hljs">T</code>. We want some
+other code to run if we have a <code class="hljs">None</code> value, and that code doesn’t have a <code class="hljs">T</code>
+value available. The <code class="hljs">match</code> expression is a control flow construct that does
+just this when used with enums: it will run different code depending on which
+variant of the enum it has, and that code can use the data inside the matching
+value.</p>
+
+    `,
+    "flowoperator": `<a class="header" href="#the-match-control-flow-operator" name="the-match-control-flow-operator"><h2>The <code class="hljs">match</code> Control Flow Operator</h2></a>
+<p>Rust has an extremely powerful control-flow operator called <code class="hljs">match</code> that allows
+us to compare a value against a series of patterns and then execute code based
+on which pattern matches. Patterns can be made up of literal values, variable
+names, wildcards, and many other things; Chapter 18 will be about all the
+different kinds of patterns and what they do. The power of <code class="hljs">match</code> comes from
+the expressiveness of the patterns and the compiler checks that make sure all
+possible cases are handled.</p>
+<p>Think of a <code class="hljs">match</code> expression kind of like a coin sorting machine: coins slide
+down a track with variously sized holes along it, and each coin falls through
+the first hole it encounters that it fits into. In the same way, values go
+through each pattern in a <code class="hljs">match</code>, and at the first pattern the value “fits,”
+the value will fall into the associated code block to be used during execution.</p>
+<p>Because we just mentioned coins, let’s use them as an example using <code class="hljs">match</code>! We
+can write a function that can take an unknown United States coin and, in a
+similar way as the counting machine, determine which coin it is and return its
+value in cents, as shown here in Listing 6-3:</p>
+<figure>
+<pre><code class="language-rust hljs"><span class="hljs-class"><span class="hljs-keyword">enum</span> <span class="hljs-title">Coin</span></span> {
+    Penny,
+    Nickel,
+    Dime,
+    Quarter,
+}
+
+<span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">value_in_cents</span></span>(coin: Coin) -&gt; <span class="hljs-keyword">i32</span> {
+    <span class="hljs-keyword">match</span> coin {
+        Coin::Penny =&gt; <span class="hljs-number">1</span>,
+        Coin::Nickel =&gt; <span class="hljs-number">5</span>,
+        Coin::Dime =&gt; <span class="hljs-number">10</span>,
+        Coin::Quarter =&gt; <span class="hljs-number">25</span>,
+    }
+}
+</code></pre>
+<figcaption>
+<p>Listing 6-3: An enum and a <code class="hljs">match</code> expression that has the variants of the enum
+as its patterns.</p>
+</figcaption>
+</figure>
+<p>Let’s break down the <code class="hljs">match</code> in the <code class="hljs">value_in_cents</code> function. First, we list
+the <code class="hljs">match</code> keyword followed by an expression, which in this case is the value
+<code class="hljs">coin</code>. This seems very similar to an expression used with <code class="hljs">if</code>, but there’s a
+big difference: with <code class="hljs">if</code>, the expression needs to return a boolean value.
+Here, it can be any type. The type of <code class="hljs">coin</code> in this example is the <code class="hljs">Coin</code> enum
+that we defined in Listing 6-3.</p>
+<p>Next are the <code class="hljs">match</code> arms. An arm has two parts: a pattern and some code. The
+first arm here has a pattern that is the value <code class="hljs">Coin::Penny</code> and then the <code class="hljs">=&gt;</code>
+operator that separates the pattern and the code to run. The code in this case
+is just the value <code class="hljs">1</code>. Each arm is separated from the next with a comma.</p>
+<p>When the <code class="hljs">match</code> expression executes, it compares the resulting value against
+the pattern of each arm, in order. If a pattern matches the value, the code
+associated with that pattern is executed. If that pattern doesn’t match the
+value, execution continues to the next arm, much like a coin sorting machine.
+We can have as many arms as we need: in Listing 6-3, our <code class="hljs">match</code> has four arms.</p>
+<p>The code associated with each arm is an expression, and the resulting value of
+the expression in the matching arm is the value that gets returned for the
+entire <code class="hljs">match</code> expression.</p>
+<p>Curly braces typically aren’t used if the match arm code is short, as it is in
+Listing 6-3 where each arm just returns a value. If you want to run multiple
+lines of code in a match arm, you can use curly braces. For example, the
+following code would print out “Lucky penny!” every time the method was called
+with a <code class="hljs">Coin::Penny</code> but would still return the last value of the block, <code class="hljs">1</code>:</p>
+<pre><div class="buttons"><i class="fa fa-expand"></i></div><code class="language-rust hljs"><span class="hidden"> <span class="hljs-class"><span class="hljs-keyword">enum</span> <span class="hljs-title">Coin</span></span> {
+</span><span class="hidden">    Penny,
+</span><span class="hidden">    Nickel,
+</span><span class="hidden">    Dime,
+</span><span class="hidden">    Quarter,
+</span><span class="hidden"> }
+</span><span class="hidden">
+</span><span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">value_in_cents</span></span>(coin: Coin) -&gt; <span class="hljs-keyword">i32</span> {
+    <span class="hljs-keyword">match</span> coin {
+        Coin::Penny =&gt; {
+            <span class="hljs-built_in">println!</span>(<span class="hljs-string">"Lucky penny!"</span>);
+            <span class="hljs-number">1</span>
+        },
+        Coin::Nickel =&gt; <span class="hljs-number">5</span>,
+        Coin::Dime =&gt; <span class="hljs-number">10</span>,
+        Coin::Quarter =&gt; <span class="hljs-number">25</span>,
+    }
+}
+</code></pre>
+<a class="header" href="#patterns-that-bind-to-values" name="patterns-that-bind-to-values"><h3>Patterns that Bind to Values</h3></a>
+<p>Another useful feature of match arms is that they can bind to parts of the
+values that match the pattern. This is how we can extract values out of enum
+variants.</p>
+<p>As an example, let’s change one of our enum variants to hold data inside it.
+From 1999 through 2008, the United States printed quarters with different
+designs for each of the 50 states on one side. No other coins got state
+designs, so only quarters have this extra value. We can add this information to
+our <code class="hljs">enum</code> by changing the <code class="hljs">Quarter</code> variant to include a <code class="hljs">State</code> value stored
+inside it, which we've done here in Listing 6-4:</p>
+<figure>
+<pre><code class="language-rust hljs"><span class="hljs-meta">#[derive(Debug)]</span> <span class="hljs-comment">// So we can inspect the state in a minute</span>
+<span class="hljs-class"><span class="hljs-keyword">enum</span> <span class="hljs-title">UsState</span></span> {
+    Alabama,
+    Alaska,
+    <span class="hljs-comment">// ... etc</span>
+}
+
+<span class="hljs-class"><span class="hljs-keyword">enum</span> <span class="hljs-title">Coin</span></span> {
+    Penny,
+    Nickel,
+    Dime,
+    Quarter(UsState),
+}
+</code></pre>
+<figcaption>
+<p>Listing 6-4: A <code class="hljs">Coin</code> enum where the <code class="hljs">Quarter</code> variant also holds a <code class="hljs">UsState</code>
+value</p>
+</figcaption>
+</figure>
+<p>Let’s imagine that a friend of ours is trying to collect all 50 state quarters.
+While we sort our loose change by coin type, we’ll also call out the name of
+the state associated with each quarter so if it’s one our friend doesn’t have,
+they can add it to their collection.</p>
+<p>In the match expression for this code, we add a variable called <code class="hljs">state</code> to the
+pattern that matches values of the variant <code class="hljs">Coin::Quarter</code>. When a
+<code class="hljs">Coin::Quarter</code> matches, the <code class="hljs">state</code> variable will bind to the value of that
+quarter’s state. Then we can use <code class="hljs">state</code> in the code for that arm, like so:</p>
+<pre><div class="buttons"><i class="fa fa-expand"></i></div><code class="language-rust hljs"><span class="hidden"> <span class="hljs-meta">#[derive(Debug)]</span>
+</span><span class="hidden"> <span class="hljs-class"><span class="hljs-keyword">enum</span> <span class="hljs-title">UsState</span></span> {
+</span><span class="hidden">    Alabama,
+</span><span class="hidden">    Alaska,
+</span><span class="hidden"> }
+</span><span class="hidden">
+</span><span class="hidden"> <span class="hljs-class"><span class="hljs-keyword">enum</span> <span class="hljs-title">Coin</span></span> {
+</span><span class="hidden">    Penny,
+</span><span class="hidden">    Nickel,
+</span><span class="hidden">    Dime,
+</span><span class="hidden">    Quarter(UsState),
+</span><span class="hidden"> }
+</span><span class="hidden">
+</span><span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">value_in_cents</span></span>(coin: Coin) -&gt; <span class="hljs-keyword">i32</span> {
+    <span class="hljs-keyword">match</span> coin {
+        Coin::Penny =&gt; <span class="hljs-number">1</span>,
+        Coin::Nickel =&gt; <span class="hljs-number">5</span>,
+        Coin::Dime =&gt; <span class="hljs-number">10</span>,
+        Coin::Quarter(state) =&gt; {
+            <span class="hljs-built_in">println!</span>(<span class="hljs-string">"State quarter from {:?}!"</span>, state);
+            <span class="hljs-number">25</span>
+        },
+    }
+}
+</code></pre>
+<p>If we were to call <code class="hljs">value_in_cents(Coin::Quarter(UsState::Alaska))</code>, <code class="hljs">coin</code>
+would be <code class="hljs">Coin::Quarter(UsState::Alaska)</code>. When we compare that value with each
+of the match arms, none of them match until we reach <code class="hljs">Coin::Quarter(state)</code>. At
+that point, the binding for <code class="hljs">state</code> will be the value <code class="hljs">UsState::Alaska</code>. We can
+then use that binding in the <code class="hljs">println!</code> expression, thus getting the inner
+state value out of the <code class="hljs">Coin</code> enum variant for <code class="hljs">Quarter</code>.</p>
+<a class="header" href="#matching-with-optiont" name="matching-with-optiont"><h3>Matching with <code class="hljs">Option&lt;T&gt;</code></h3></a>
+<p>In the previous section we wanted to get the inner <code class="hljs">T</code> value out of the <code class="hljs">Some</code>
+case when using <code class="hljs">Option&lt;T&gt;</code>; we can also handle <code class="hljs">Option&lt;T&gt;</code> using <code class="hljs">match</code> as we
+did with the <code class="hljs">Coin</code> enum! Instead of comparing coins, we’ll compare the
+variants of <code class="hljs">Option&lt;T&gt;</code>, but the way that the <code class="hljs">match</code> expression works remains
+the same.</p>
+<p>Let’s say we want to write a function that takes an <code class="hljs">Option&lt;i32&gt;</code>, and if
+there’s a value inside, adds one to that value. If there isn’t a value inside,
+the function should return the <code class="hljs">None</code> value and not attempt to perform any
+operations.</p>
+<p>This function is very easy to write, thanks to <code class="hljs">match</code>, and will look like
+Listing 6-5:</p>
+<figure>
+<pre><code class="language-rust hljs"><span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">plus_one</span></span>(x: <span class="hljs-built_in">Option</span>&lt;<span class="hljs-keyword">i32</span>&gt;) -&gt; <span class="hljs-built_in">Option</span>&lt;<span class="hljs-keyword">i32</span>&gt; {
+    <span class="hljs-keyword">match</span> x {
+        <span class="hljs-literal">None</span> =&gt; <span class="hljs-literal">None</span>,
+        <span class="hljs-literal">Some</span>(i) =&gt; <span class="hljs-literal">Some</span>(i + <span class="hljs-number">1</span>),
+    }
+}
+
+<span class="hljs-keyword">let</span> five = <span class="hljs-literal">Some</span>(<span class="hljs-number">5</span>);
+<span class="hljs-keyword">let</span> six = plus_one(five);
+<span class="hljs-keyword">let</span> none = plus_one(<span class="hljs-literal">None</span>);
+</code></pre>
+<figcaption>
+<p>Listing 6-5: A function that uses a <code class="hljs">match</code> expression on an <code class="hljs">Option&lt;i32&gt;</code></p>
+</figcaption>
+</figure>
+<a class="header" href="#matching-somet" name="matching-somet"><h4>Matching <code class="hljs">Some(T)</code></h4></a>
+<p>Let’s examine the first execution of <code class="hljs">plus_one</code> in more detail. When we call
+<code class="hljs">plus_one(five)</code>, the variable <code class="hljs">x</code> in the body of <code class="hljs">plus_one</code> will have the
+value <code class="hljs">Some(5)</code>. We then compare that against each match arm.</p>
+<pre><code class="language-rust,ignore hljs"><span class="hljs-literal">None</span> =&gt; <span class="hljs-literal">None</span>,
+</code></pre>
+<p>The <code class="hljs">Some(5)</code> value doesn’t match the pattern <code class="hljs">None</code>, so we continue to the
+next arm.</p>
+<pre><code class="language-rust,ignore hljs"><span class="hljs-literal">Some</span>(i) =&gt; <span class="hljs-literal">Some</span>(i + <span class="hljs-number">1</span>),
+</code></pre>
+<p>Does <code class="hljs">Some(5)</code> match <code class="hljs">Some(i)</code>? Why yes it does! We have the same variant.
+The <code class="hljs">i</code> binds to the value contained in <code class="hljs">Some</code>, so <code class="hljs">i</code> takes the value <code class="hljs">5</code>. The
+code in the match arm is then executed, so we add one to the value of <code class="hljs">i</code> and
+create a new <code class="hljs">Some</code> value with our total <code class="hljs">6</code> inside.</p>
+<a class="header" href="#matching-none" name="matching-none"><h4>Matching <code class="hljs">None</code></h4></a>
+<p>Now let’s consider the second call of <code class="hljs">plus_one</code> in Listing 6-5 where <code class="hljs">x</code> is
+<code class="hljs">None</code>. We enter the <code class="hljs">match</code> and compare to the first arm.</p>
+<pre><code class="language-rust,ignore hljs"><span class="hljs-literal">None</span> =&gt; <span class="hljs-literal">None</span>,
+</code></pre>
+<p>It matches! There’s no value to add to, so the program stops and returns the
+<code class="hljs">None</code> value on the right side of <code class="hljs">=&gt;</code>. Because the first arm matched, no other
+arms are compared.</p>
+<p>Combining <code class="hljs">match</code> and enums is useful in many situations. You’ll see this
+pattern a lot in Rust code: <code class="hljs">match</code> against an enum, bind a variable to the
+data inside, and then execute code based on it. It’s a bit tricky at first, but
+once you get used to it, you’ll wish you had it in all languages. It’s
+consistently a user favorite.</p>
+<a class="header" href="#matches-are-exhaustive" name="matches-are-exhaustive"><h3>Matches Are Exhaustive</h3></a>
+<p>There’s one other aspect of <code class="hljs">match</code> we need to discuss. Consider this version
+of our <code class="hljs">plus_one</code> function:</p>
+<pre><code class="language-rust,ignore hljs"><span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">plus_one</span></span>(x: <span class="hljs-built_in">Option</span>&lt;<span class="hljs-keyword">i32</span>&gt;) -&gt; <span class="hljs-built_in">Option</span>&lt;<span class="hljs-keyword">i32</span>&gt; {
+    <span class="hljs-keyword">match</span> x {
+        <span class="hljs-literal">Some</span>(i) =&gt; <span class="hljs-literal">Some</span>(i + <span class="hljs-number">1</span>),
+    }
+}
+</code></pre>
+<p>We didn’t handle the <code class="hljs">None</code> case, so this code will cause a bug. Luckily, it’s
+a bug Rust knows how to catch. If we try to compile this code, we’ll get this
+error:</p>
+<pre><code class="language-text hljs">error[E0004]: non-exhaustive patterns: \`None\` not covered
+ --&gt;
+  |
+6 |         match x {
+  |               ^ pattern \`None\` not covered
+</code></pre>
+<p>Rust knows that we didn’t cover every possible case and even knows which
+pattern we forgot! Matches in Rust are <em>exhaustive</em>: we must exhaust every last
+possibility in order for the code to be valid. Especially in the case of
+<code class="hljs">Option&lt;T&gt;</code>, when Rust prevents us from forgetting to explicitly handle the
+<code class="hljs">None</code> case, it protects us from assuming that we have a value when we might
+have null, thus making the billion dollar mistake discussed earlier.</p>
+<a class="header" href="#the-_-placeholder" name="the-_-placeholder"><h3>The <code class="hljs">_</code> Placeholder</h3></a>
+<p>Rust also has a pattern we can use in situations when we don’t want to list all
+possible values. For example, a <code class="hljs">u8</code> can have valid values of 0 through 255. If
+we only care about the values 1, 3, 5, and 7, we don’t want to have to list out
+0, 2, 4, 6, 8, 9 all the way up to 255. Fortunately, we don’t have to: we can
+use the special pattern <code class="hljs">_</code> instead:</p>
+<pre><code class="language-rust hljs"><span class="hljs-keyword">let</span> some_u8_value = <span class="hljs-number">0u8</span>;
+<span class="hljs-keyword">match</span> some_u8_value {
+    <span class="hljs-number">1</span> =&gt; <span class="hljs-built_in">println!</span>(<span class="hljs-string">"one"</span>),
+    <span class="hljs-number">3</span> =&gt; <span class="hljs-built_in">println!</span>(<span class="hljs-string">"three"</span>),
+    <span class="hljs-number">5</span> =&gt; <span class="hljs-built_in">println!</span>(<span class="hljs-string">"five"</span>),
+    <span class="hljs-number">7</span> =&gt; <span class="hljs-built_in">println!</span>(<span class="hljs-string">"seven"</span>),
+    _ =&gt; (),
+}
+</code></pre>
+<p>The <code class="hljs">_</code> pattern will match any value. By putting it after our other arms, the
+<code class="hljs">_</code> will match all the possible cases that aren’t specified before it. The <code class="hljs">()</code>
+is just the unit value, so nothing will happen in the <code class="hljs">_</code> case. As a result, we
+can say that we want to do nothing for all the possible values that we don’t
+list before the <code class="hljs">_</code> placeholder.</p>
+<p>However, the <code class="hljs">match</code> expression can be a bit wordy in a situation in which we
+only care about <em>one</em> of the cases. For this situation, Rust provides <code class="hljs">if let</code>.</p>
+    `,
+    "iflet": `                    <a class="header" href="#concise-control-flow-with-if-let" name="concise-control-flow-with-if-let"><h2>Concise Control Flow with <code class="hljs">if let</code></h2></a>
+<p>The <code class="hljs">if let</code> syntax lets you combine <code class="hljs">if</code> and <code class="hljs">let</code> into a less verbose way to
+handle values that match one pattern and ignore the rest. Consider the program
+in Listing 6-6 that matches on an <code class="hljs">Option&lt;u8&gt;</code> value but only wants to execute
+code if the value is three:</p>
+<figure>
+<pre><code class="language-rust hljs"><span class="hljs-keyword">let</span> some_u8_value = <span class="hljs-literal">Some</span>(<span class="hljs-number">0u8</span>);
+<span class="hljs-keyword">match</span> some_u8_value {
+    <span class="hljs-literal">Some</span>(<span class="hljs-number">3</span>) =&gt; <span class="hljs-built_in">println!</span>(<span class="hljs-string">"three"</span>),
+    _ =&gt; (),
+}
+</code></pre>
+<figcaption>
+<p>Listing 6-6: A <code class="hljs">match</code> that only cares about executing code when the value is
+<code class="hljs">Some(3)</code></p>
+</figcaption>
+</figure>
+<p>We want to do something with the <code class="hljs">Some(3)</code> match but do nothing with any other
+<code class="hljs">Some&lt;u8&gt;</code> value or the <code class="hljs">None</code> value. To satisfy the <code class="hljs">match</code> expression, we
+have to add <code class="hljs">_ =&gt; ()</code> after processing just one variant, which is a lot of
+boilerplate code to add.</p>
+<p>Instead, we could write this in a shorter way using <code class="hljs">if let</code>. The following
+code behaves the same as the <code class="hljs">match</code> in Listing 6-6:</p>
+<pre><div class="buttons"><i class="fa fa-expand"></i></div><code class="language-rust hljs"><span class="hidden"> <span class="hljs-keyword">let</span> some_u8_value = <span class="hljs-literal">Some</span>(<span class="hljs-number">0u8</span>);
+</span><span class="hljs-keyword">if</span> <span class="hljs-keyword">let</span> <span class="hljs-literal">Some</span>(<span class="hljs-number">3</span>) = some_u8_value {
+    <span class="hljs-built_in">println!</span>(<span class="hljs-string">"three"</span>);
+}
+</code></pre>
+<p><code class="hljs">if let</code> takes a pattern and an expression separated by an <code class="hljs">=</code>. It works the
+same way as a <code class="hljs">match</code>, where the expression is given to the <code class="hljs">match</code> and the
+pattern is its first arm.</p>
+<p>Using <code class="hljs">if let</code> means you have less to type, less indentation, and less
+boilerplate code. However, we’ve lost the exhaustive checking that <code class="hljs">match</code>
+enforces. Choosing between <code class="hljs">match</code> and <code class="hljs">if let</code> depends on what you’re doing in
+your particular situation and if gaining conciseness is an appropriate
+trade-off for losing exhaustive checking.</p>
+<p>In other words, you can think of <code class="hljs">if let</code> as syntax sugar for a <code class="hljs">match</code> that
+runs code when the value matches one pattern and then ignores all other values.</p>
+<p>We can include an <code class="hljs">else</code> with an <code class="hljs">if let</code>. The block of code that goes with the
+<code class="hljs">else</code> is the same as the block of code that would go with the <code class="hljs">_</code> case in the
+<code class="hljs">match</code> expression that is equivalent to the <code class="hljs">if let</code> and <code class="hljs">else</code>. Recall the
+<code class="hljs">Coin</code> enum definition in Listing 6-4, where the <code class="hljs">Quarter</code> variant also held a
+<code class="hljs">UsState</code> value. If we wanted to count all non-quarter coins we see while also
+announcing the state of the quarters, we could do that with a <code class="hljs">match</code>
+expression like this:</p>
+<pre><div class="buttons"><i class="fa fa-expand"></i></div><code class="language-rust hljs"><span class="hidden"> <span class="hljs-meta">#[derive(Debug)]</span>
+</span><span class="hidden"> <span class="hljs-class"><span class="hljs-keyword">enum</span> <span class="hljs-title">UsState</span></span> {
+</span><span class="hidden">    Alabama,
+</span><span class="hidden">    Alaska,
+</span><span class="hidden"> }
+</span><span class="hidden">
+</span><span class="hidden"> <span class="hljs-class"><span class="hljs-keyword">enum</span> <span class="hljs-title">Coin</span></span> {
+</span><span class="hidden">    Penny,
+</span><span class="hidden">    Nickel,
+</span><span class="hidden">    Dime,
+</span><span class="hidden">    Quarter(UsState),
+</span><span class="hidden"> }
+</span><span class="hidden"> <span class="hljs-keyword">let</span> coin = Coin::Penny;
+</span><span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> count = <span class="hljs-number">0</span>;
+<span class="hljs-keyword">match</span> coin {
+    Coin::Quarter(state) =&gt; <span class="hljs-built_in">println!</span>(<span class="hljs-string">"State quarter from {:?}!"</span>, state),
+    _ =&gt; count += <span class="hljs-number">1</span>,
+}
+</code></pre>
+<p>Or we could use an <code class="hljs">if let</code> and <code class="hljs">else</code> expression like this:</p>
+<pre><div class="buttons"><i class="fa fa-expand"></i></div><code class="language-rust hljs"><span class="hidden"> <span class="hljs-meta">#[derive(Debug)]</span>
+</span><span class="hidden"> <span class="hljs-class"><span class="hljs-keyword">enum</span> <span class="hljs-title">UsState</span></span> {
+</span><span class="hidden">    Alabama,
+</span><span class="hidden">    Alaska,
+</span><span class="hidden"> }
+</span><span class="hidden">
+</span><span class="hidden"> <span class="hljs-class"><span class="hljs-keyword">enum</span> <span class="hljs-title">Coin</span></span> {
+</span><span class="hidden">    Penny,
+</span><span class="hidden">    Nickel,
+</span><span class="hidden">    Dime,
+</span><span class="hidden">    Quarter(UsState),
+</span><span class="hidden"> }
+</span><span class="hidden"> <span class="hljs-keyword">let</span> coin = Coin::Penny;
+</span><span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> count = <span class="hljs-number">0</span>;
+<span class="hljs-keyword">if</span> <span class="hljs-keyword">let</span> Coin::Quarter(state) = coin {
+    <span class="hljs-built_in">println!</span>(<span class="hljs-string">"State quarter from {:?}!"</span>, state);
+} <span class="hljs-keyword">else</span> {
+    count += <span class="hljs-number">1</span>;
+}
+</code></pre>
+<p>If you have a situation in which your program has logic that is too verbose to
+express using a <code class="hljs">match</code>, remember that <code class="hljs">if let</code> is in your Rust toolbox as well.</p>
+<a class="header" href="#summary" name="summary"><h2>Summary</h2></a>
+<p>We’ve now covered how to use enums to create custom types that can be one of a
+set of enumerated values. We’ve shown how the standard library’s <code class="hljs">Option&lt;T&gt;</code>
+type helps you use the type system to prevent errors. When enum values have
+data inside them, you can use <code class="hljs">match</code> or <code class="hljs">if let</code> to extract and use those
+values, depending on how many cases you need to handle.</p>
+<p>Your Rust programs can now express concepts in your domain using structs and
+enums. Creating custom types to use in your API ensures type safety: the
+compiler will make certain your functions only get values of the type each
+function expects.</p>
+<p>In order to provide a well-organized API to your users that is straightforward
+to use and only exposes exactly what your users will need, let’s now turn to
+Rust’s modules.</p>
+
+    `,
+    "more": `
+    <h1>More</h1>
+    <p>For more about the Rust language you can visit <a href="https://www.rust-lang.org/en-US/">the official website</a>, you can also check out <a href="https://rust-lang.github.io/book/ch01-00-introduction.html">the rust book</a>. </p>
+    <p>For more of my work check the footer of this page.
+    </p>
+
+`
+
+}
+</script>
+
+<div class="columns">
+    <aside>
+            <ul class="column menu menu-list is-12" id="menu">
+                <li>
+                    <a class="is-active" id="introduction">Introduction</a>
+                    <ul>
+                        <li><a id="installation">Installation</a></li>
+                        <li><a id="helloworld">Hello, World!</a></li>
+                    </ul>
+                </li>
+                <li><a id="game">Guessing Game Tutorial</a></li>
+                <li>
+                    <a id="concepts">Common Programming Concepts</a>
+                    <ul>
+                        <li><a id="variables">Variables and Mutability</a></li>
+                        <li><a id="datatypes">Data Types</a></li>
+                        <li><a id="functions">How Functions Work</a></li>
+                        <li><a id="comments">Comments</a></li>
+                        <li><a id="flow">Control Flow</a></li>
+                    </ul>
+                </li>
+                <li>
+                    <a id="ownership">Understanding Ownership</a>
+                    <ul>
+                        <li><a id="whatisownership">What Is Ownership?</a></li>
+                        <li><a id="borrowing">References and Borrowing</a></li>
+                        <li><a id="slices">Slices</a></li>
+                    </ul>
+                </li>
+                <li>
+                    <a id="structs">Structs</a>
+                    <ul>
+                        <li><a id="syntax">Method Syntax</a></li>
+                    </ul>
+                </li>
+                <li>
+                    <a id="enums">Enums and Pattern Matching</a>
+                    <ul>
+                        <li><a id="defineenum">Defining an Enum</a></li>
+                        <li><a id="flowoperator">The match Control Flow Operator</a></li>
+                        <li><a id="iflet">Concise Control Flow with <code>if let</code></a></li>
+                    </ul>
+                </li>
+                <li><a id="more">More</a></li>
+            </ul>
+            <a class="button menu-control" id="menu-control">
+                <span class="icon"><i class="fa fa-bars "></i></span>
+            </a>
+        </aside>
+        <div class="contact has-text-centered">
+            <a href="https://github.com/selhar/freecodecamp/tree/master/beta/responsive-web-design/technical-documentation-page" target="_blank">
+                <span class="icon"><i class="fa fa-github"></i></span>
+            </a>
+            <a href="https://codepen.io/Selhar/#" target="_blank">
+                <span class="icon"><i class="fa fa-codepen"></i></span>
+            </a>
+            <a href="https://selhar-showcase.surge.sh" target="_blank">
+                <span class="icon"><i class="fa fa-free-code-camp"></i></span>
+            </a>
+        </div>
+        <main class="column  is-8-desktop is-7-tablet is-12-mobile is-paddingless">
+            <section class="content" id="main-content">
+            </section>
+        </main>
+     </div>
